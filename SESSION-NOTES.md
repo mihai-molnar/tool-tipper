@@ -1,7 +1,7 @@
 # Tool-Tipper Development Session Notes
 
 **Date**: 2025-08-10  
-**Status**: ✅ **FULLY FUNCTIONAL** - Production Ready
+**Status**: ✅ **DEPLOYED & PRODUCTION READY** - Live on Vercel
 
 ## 🎯 What Was Accomplished
 
@@ -30,6 +30,21 @@
    - Read-only interface
    - Share functionality
 
+### ✅ Recent Session Updates (Latest)
+
+#### Deployment & Production
+- **✅ Vercel Deployment**: App successfully deployed to production
+- **✅ Environment Variables**: Supabase keys configured in Vercel
+- **✅ Next.js 15 Compatibility**: Fixed params handling for API routes
+- **✅ Build Optimizations**: Resolved TypeScript and ESLint errors
+- **✅ Custom Branding**: Updated title, favicon, and metadata
+
+#### UI/UX Polish
+- **✅ Cursor Pointers**: Added to all clickable buttons for better UX
+- **✅ Date Formatting**: Created date displays as "08-Aug-2025" format
+- **✅ Icon Generation**: Dynamic emoji favicon (🎯) using Next.js ImageResponse
+- **✅ Title Updates**: Changed from "Create Next App" to "Tool-Tipper"
+
 ### ✅ Technical Improvements Made
 
 #### Image Display & Sizing
@@ -55,6 +70,19 @@
 - **Edit token validation**: Server-side verification
 - **Safe environment setup**: No service role key needed
 
+## 🚀 Production Deployment
+
+### Live URLs
+- **Production Site**: `https://tool-tipper-git-main-mihaimolnars-projects.vercel.app`
+- **GitHub Repository**: `https://github.com/mihai-molnar/tool-tipper`
+- **Vercel Dashboard**: Check deployments and configure environment variables
+
+### Environment Setup
+- **NEXT_PUBLIC_SUPABASE_URL**: Configured in Vercel
+- **NEXT_PUBLIC_SUPABASE_ANON_KEY**: Configured in Vercel
+- **Build Process**: Automated via GitHub integration
+- **Deployment Trigger**: Push to main branch
+
 ## 🚀 Current Status
 
 ### Working Features
@@ -67,6 +95,10 @@
 - ✅ Public view with read-only tooltips
 - ✅ Responsive image sizing
 - ✅ Mobile-friendly interface
+- ✅ **Live production deployment**
+- ✅ **Custom branding and favicon**
+- ✅ **Professional date formatting**
+- ✅ **Improved button interactions**
 
 ### Database & Storage
 - ✅ PostgreSQL schema with RLS
@@ -173,6 +205,32 @@ src/
 - [ ] Bulk delete pages
 - [ ] Usage analytics
 - [ ] User management (if auth added)
+
+## 🚀 Deployment Guide
+
+### For Future Deployments
+
+**GitHub Setup:**
+1. Push changes to `main` branch
+2. Vercel automatically deploys via GitHub integration
+3. Check build logs in Vercel dashboard
+
+**Environment Variables (Required in Vercel):**
+- `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+
+**Common Deployment Issues & Fixes:**
+- **TypeScript errors**: Run `npm run build` locally first
+- **ESLint errors**: Check `eslint.config.mjs` for disabled rules
+- **Next.js 15 compatibility**: API routes use `Promise<{param: string}>` for params
+- **Missing favicon**: Use `src/app/icon.tsx` with Next.js ImageResponse
+
+### Development Workflow
+1. **Local Development**: `npm run dev`
+2. **Test Changes**: Verify all features work locally
+3. **Commit & Push**: Push to `main` branch
+4. **Monitor Deployment**: Check Vercel dashboard for build status
+5. **Test Production**: Verify deployment on live URL
 
 ## 🔍 Known Issues & Considerations
 
