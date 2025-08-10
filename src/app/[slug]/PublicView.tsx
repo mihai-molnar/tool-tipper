@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+// import { useState } from 'react';
 import { Share, Upload } from 'lucide-react';
 import Link from 'next/link';
 import ImageCanvas from '@/components/ImageCanvas';
@@ -25,7 +25,7 @@ export default function PublicView({ page, hotspots }: PublicViewProps) {
           text: 'Check out this interactive image with tooltips',
           url: url,
         });
-      } catch (err) {
+      } catch (_err) {
         // User cancelled or share failed, fall back to clipboard
         copyToClipboard(url);
       }
@@ -38,7 +38,7 @@ export default function PublicView({ page, hotspots }: PublicViewProps) {
     try {
       await navigator.clipboard.writeText(text);
       showToast('success', 'Link copied to clipboard');
-    } catch (err) {
+    } catch (_err) {
       showToast('error', 'Failed to copy link');
     }
   };

@@ -52,7 +52,7 @@ export default function NewPage() {
         throw new Error('Failed to upload image');
       }
 
-      const uploadData: UploadResponse = await uploadResponse.json();
+      const _uploadData: UploadResponse = await uploadResponse.json();
 
       showToast('success', 'Image uploaded successfully!');
       

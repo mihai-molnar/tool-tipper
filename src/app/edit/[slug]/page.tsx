@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { Copy, ExternalLink, Edit3, Save } from 'lucide-react';
 import ImageCanvas from '@/components/ImageCanvas';
@@ -31,9 +31,9 @@ export default function EditPage() {
     }
 
     fetchPageData();
-  }, [slug, editToken]);
+  }, [slug, editToken, fetchPageData]);
 
-  const fetchPageData = async () => {
+  const fetchPageData = useCallback(async () => {
     try {
       const response = await fetch(`/api/page/${slug}`);
       
@@ -45,12 +45,12 @@ export default function EditPage() {
       setPage(data.page);
       setHotspots(data.hotspots);
       setTitleValue(data.page.title || '');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load page');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to load page');
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug]);
 
   const handleCreateHotspot = async (x_pct: number, y_pct: number, text: string) => {
     if (!editToken || !page) return;
@@ -91,7 +91,7 @@ export default function EditPage() {
 
       const newHotspot = await response.json();
       setHotspots(prev => prev.map(h => h.id === tempId ? newHotspot : h));
-    } catch (err) {
+    } catch (_err) {
       setHotspots(prev => prev.filter(h => h.id !== tempId));
       showToast('error', 'Failed to create hotspot');
     }
@@ -121,7 +121,7 @@ export default function EditPage() {
 
       const updatedHotspot = await response.json();
       setHotspots(prev => prev.map(h => h.id === id ? updatedHotspot : h));
-    } catch (err) {
+    } catch (_err) {
       // Revert optimistic update
       fetchPageData();
       showToast('error', 'Failed to update hotspot');
@@ -147,7 +147,7 @@ export default function EditPage() {
       }
 
       showToast('success', 'Hotspot deleted');
-    } catch (err) {
+    } catch (_err) {
       // Revert optimistic update
       fetchPageData();
       showToast('error', 'Failed to delete hotspot');
@@ -175,7 +175,7 @@ export default function EditPage() {
       setPage(updatedPage);
       setIsEditingTitle(false);
       showToast('success', 'Title updated');
-    } catch (err) {
+    } catch (_err) {
       showToast('error', 'Failed to update title');
     }
   };
@@ -184,7 +184,7 @@ export default function EditPage() {
     try {
       await navigator.clipboard.writeText(text);
       showToast('success', `${label} copied to clipboard`);
-    } catch (err) {
+    } catch (_err) {
       showToast('error', 'Failed to copy to clipboard');
     }
   };

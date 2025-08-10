@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useDropzone, FileRejection } from 'react-dropzone';
 import { Upload, X } from 'lucide-react';
-import { isValidImageType, formatFileSize } from '@/lib/utils';
+import { isValidImageType } from '@/lib/utils';
 
 interface UploadDropzoneProps {
   onFileSelect: (file: File) => void;
@@ -13,12 +13,12 @@ interface UploadDropzoneProps {
 export default function UploadDropzone({ onFileSelect, disabled }: UploadDropzoneProps) {
   const [error, setError] = useState<string | null>(null);
 
-  const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
+  const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
     setError(null);
 
     if (rejectedFiles.length > 0) {
       const rejection = rejectedFiles[0];
-      if (rejection.errors.some((e: any) => e.code === 'file-too-large')) {
+      if (rejection.errors.some((e) => e.code === 'file-too-large')) {
         setError('File size too large. Maximum 10MB allowed.');
       } else {
         setError('Invalid file type. Only JPEG, PNG, and WebP are allowed.');

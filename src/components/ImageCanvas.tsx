@@ -23,7 +23,7 @@ export default function ImageCanvas({
 }: ImageCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  const [_containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [showNewHotspotForm, setShowNewHotspotForm] = useState(false);
   const [newHotspotPosition, setNewHotspotPosition] = useState({ x: 0, y: 0, x_pct: 0, y_pct: 0 });
   const [newHotspotText, setNewHotspotText] = useState('');

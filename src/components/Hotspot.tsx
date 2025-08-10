@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Hotspot as HotspotType } from '@/types';
-import { Trash2, Edit3 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 
 interface HotspotProps {
   hotspot: HotspotType;
@@ -81,7 +81,7 @@ export default function Hotspot({
         {showTooltip && (() => {
           // Determine if tooltip should appear above or below the hotspot
           const spaceAbove = top;
-          const spaceBelow = containerHeight - top;
+          const _spaceBelow = containerHeight - top;
           const showBelow = spaceAbove < 60; // If less than 60px above, show below
           
           return (
@@ -172,7 +172,7 @@ export default function Hotspot({
       {mode === 'edit' && showTooltip && !isEditing && (() => {
         // Determine if tooltip should appear above or below the hotspot
         const spaceAbove = top;
-        const spaceBelow = containerHeight - top;
+        const _spaceBelow = containerHeight - top;
         const showBelow = spaceAbove < 60; // If less than 60px above, show below
         
         return (
