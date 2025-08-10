@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tool-Tipper
 
-## Getting Started
+A web app where users can upload images and add interactive tooltips (hotspots) to them. Built with Next.js 14, Supabase, and Tailwind CSS.
 
-First, run the development server:
+## Features
+
+- Upload images and create shareable pages
+- Add interactive hotspots with tooltips
+- Public read-only view via slug URLs
+- Admin edit access via secret tokens
+- Responsive design with mobile support
+
+## Tech Stack
+
+- **Frontend**: Next.js 14 (App Router), React, TypeScript
+- **Backend**: Next.js API Routes, Supabase
+- **Database**: Supabase PostgreSQL
+- **Storage**: Supabase Storage
+- **Styling**: Tailwind CSS
+- **Deployment**: Vercel + Supabase
+
+## Setup
+
+### 1. Environment Variables
+
+Create a `.env.local` file with:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+### 2. Database Setup
+
+Run the SQL schema in your Supabase SQL editor (see `database/schema.sql`)
+
+### 3. Storage Setup
+
+1. Create a bucket named `images` in Supabase Storage
+2. Set bucket to public access
+3. Configure upload policies
+
+### 4. Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Architecture
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Public URLs**: `/{slug}` - Read-only view
+- **Edit URLs**: `/edit/{slug}?token={edit_token}` - Admin edit access
+- **Create**: `/new` - Upload new image and create page
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Data Model
 
-## Learn More
+- `page`: Contains image metadata, public slug, and secret edit token
+- `hotspot`: Interactive tooltip points linked to a page
 
-To learn more about Next.js, take a look at the following resources:
+## Security
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Public read access via anonymous Supabase key
+- Write operations secured by Row Level Security (RLS) policies
+- Edit token validation for all mutations
+- No service role key required (simplified architecture)
+- API keys properly secured (only anon key exposed by design)
