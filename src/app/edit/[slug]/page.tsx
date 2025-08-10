@@ -232,7 +232,7 @@ export default function EditPage() {
           <p className="text-gray-600 mb-4">{error || 'The requested page could not be found.'}</p>
           <button
             onClick={() => router.push('/')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer"
           >
             Go Home
           </button>
@@ -266,7 +266,7 @@ export default function EditPage() {
                   />
                   <button
                     onClick={handleUpdateTitle}
-                    className="p-1 text-green-600 hover:text-green-700"
+                    className="p-1 text-green-600 hover:text-green-700 cursor-pointer"
                   >
                     <Save className="w-4 h-4" />
                   </button>
@@ -278,7 +278,7 @@ export default function EditPage() {
                   </h1>
                   <button
                     onClick={() => setIsEditingTitle(true)}
-                    className="p-1 text-gray-400 hover:text-gray-600"
+                    className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer"
                   >
                     <Edit3 className="w-4 h-4" />
                   </button>
@@ -290,21 +290,21 @@ export default function EditPage() {
           <div className="flex items-center space-x-2">
             <button
               onClick={handleViewPublic}
-              className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <ExternalLink className="w-4 h-4" />
               <span>View</span>
             </button>
             <button
               onClick={handleCopyShareLink}
-              className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <Copy className="w-4 h-4" />
               <span>Share</span>
             </button>
             <button
               onClick={handleCopyEditLink}
-              className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer"
             >
               <Copy className="w-4 h-4" />
               <span>Copy Edit Link</span>

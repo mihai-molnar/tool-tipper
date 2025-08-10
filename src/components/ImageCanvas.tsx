@@ -168,13 +168,13 @@ export default function ImageCanvas({
               <div className="flex justify-end space-x-2 mt-2">
                 <button
                   onClick={handleCancelNewHotspot}
-                  className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded text-sm transition-colors"
+                  className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded text-sm transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSaveNewHotspot}
-                  className="px-3 py-1 bg-blue-600 text-white hover:bg-blue-700 rounded text-sm transition-colors"
+                  className="px-3 py-1 bg-blue-600 text-white hover:bg-blue-700 rounded text-sm transition-colors cursor-pointer"
                   disabled={!newHotspotText.trim()}
                 >
                   Save

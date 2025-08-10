@@ -110,7 +110,7 @@ export default function Hotspot({
   return (
     <>
       <button
-        className="absolute w-4 h-4 bg-red-500 border-2 border-white rounded-full shadow-md hover:scale-125 transition-all z-10 opacity-70 hover:opacity-100"
+        className="absolute w-4 h-4 bg-red-500 border-2 border-white rounded-full shadow-md hover:scale-125 transition-all z-10 opacity-70 hover:opacity-100 cursor-pointer"
         style={{ left: left - 8, top: top - 8 }}
         onClick={() => setIsEditing(true)}
         onMouseEnter={() => setShowTooltip(true)}
@@ -143,7 +143,7 @@ export default function Hotspot({
           <div className="flex justify-between items-center mt-2 space-x-2">
             <button
               onClick={handleDelete}
-              className="flex items-center space-x-1 px-2 py-1 text-red-600 hover:bg-red-50 rounded text-sm transition-colors"
+              className="flex items-center space-x-1 px-2 py-1 text-red-600 hover:bg-red-50 rounded text-sm transition-colors cursor-pointer"
             >
               <Trash2 className="w-3 h-3" />
               <span>Delete</span>
@@ -152,13 +152,13 @@ export default function Hotspot({
             <div className="flex space-x-2">
               <button
                 onClick={handleCancel}
-                className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded text-sm transition-colors"
+                className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded text-sm transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="px-3 py-1 bg-blue-600 text-white hover:bg-blue-700 rounded text-sm transition-colors"
+                className="px-3 py-1 bg-blue-600 text-white hover:bg-blue-700 rounded text-sm transition-colors cursor-pointer"
                 disabled={!editText.trim()}
               >
                 Save

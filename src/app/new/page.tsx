@@ -113,7 +113,7 @@ export default function NewPage() {
                     </div>
                     <button
                       onClick={handleRemoveFile}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                       disabled={uploading}
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,7 +127,7 @@ export default function NewPage() {
                   <button
                     onClick={handleUpload}
                     disabled={uploading}
-                    className="px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+                    className="px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2 cursor-pointer"
                   >
                     {uploading ? (
                       <>

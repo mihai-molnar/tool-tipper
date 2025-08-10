@@ -63,7 +63,7 @@ export default function PublicView({ page, hotspots }: PublicViewProps) {
           <div className="flex items-center space-x-2">
             <button
               onClick={handleShare}
-              className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <Share className="w-4 h-4" />
               <span>Share</span>

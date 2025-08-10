@@ -17,7 +17,7 @@ export default function Home() {
         
         <Link
           href="/new"
-          className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+          className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium cursor-pointer"
         >
           <Upload className="w-4 h-4 mr-2" />
           Create New
