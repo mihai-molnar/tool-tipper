@@ -31,7 +31,7 @@ export default function EditPage() {
     }
 
     fetchPageData();
-  }, [slug, editToken, fetchPageData]);
+  }, [slug, editToken]);
 
   const fetchPageData = useCallback(async () => {
     try {

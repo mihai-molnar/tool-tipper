@@ -25,7 +25,7 @@ export async function GET(
     // Get hotspots for this page
     const { data: hotspots, error: hotspotsError } = await supabaseServer
       .from('hotspot')
-      .select('id, x_pct, y_pct, text, z_index, created_at, updated_at')
+      .select('id, page_id, x_pct, y_pct, text, z_index, created_at, updated_at')
       .eq('page_id', page.id)
       .order('z_index', { ascending: true });
 
