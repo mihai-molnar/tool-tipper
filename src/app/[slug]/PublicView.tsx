@@ -15,6 +15,16 @@ interface PublicViewProps {
 export default function PublicView({ page, hotspots }: PublicViewProps) {
   const { showToast, ToastComponent } = useToast();
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   const handleShare = async () => {
     const url = window.location.href;
     
@@ -100,7 +110,7 @@ export default function PublicView({ page, hotspots }: PublicViewProps) {
           <p>Hover over the blue dots to see tooltips</p>
           {page.created_at && (
             <p className="mt-1">
-              Created on {new Date(page.created_at).toLocaleDateString()}
+              Created on {formatDate(page.created_at)}
             </p>
           )}
         </div>
