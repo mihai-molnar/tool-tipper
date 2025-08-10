@@ -23,16 +23,6 @@ export default function EditPage() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
 
-  useEffect(() => {
-    if (!editToken) {
-      setError('Edit token is required');
-      setLoading(false);
-      return;
-    }
-
-    fetchPageData();
-  }, [slug, editToken]);
-
   const fetchPageData = useCallback(async () => {
     try {
       const response = await fetch(`/api/page/${slug}`);
@@ -51,6 +41,16 @@ export default function EditPage() {
       setLoading(false);
     }
   }, [slug]);
+
+  useEffect(() => {
+    if (!editToken) {
+      setError('Edit token is required');
+      setLoading(false);
+      return;
+    }
+
+    fetchPageData();
+  }, [slug, editToken, fetchPageData]);
 
   const handleCreateHotspot = async (x_pct: number, y_pct: number, text: string) => {
     if (!editToken || !page) return;

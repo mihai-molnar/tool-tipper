@@ -38,7 +38,7 @@ export async function PATCH(
       .eq('id', id)
       .single();
 
-    if (hotspotError || !hotspot || hotspot.page.edit_token !== editToken) {
+    if (hotspotError || !hotspot || (hotspot as any).page.edit_token !== editToken) {
       return NextResponse.json(
         { error: 'Invalid edit token or hotspot not found' },
         { status: 403 }
@@ -102,7 +102,7 @@ export async function DELETE(
       .eq('id', id)
       .single();
 
-    if (hotspotError || !hotspot || hotspot.page.edit_token !== editToken) {
+    if (hotspotError || !hotspot || (hotspot as any).page.edit_token !== editToken) {
       return NextResponse.json(
         { error: 'Invalid edit token or hotspot not found' },
         { status: 403 }
