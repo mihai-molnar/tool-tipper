@@ -5,6 +5,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { Copy, ExternalLink, Edit3, Save } from 'lucide-react';
 import ImageCanvas from '@/components/ImageCanvas';
 import { useToast } from '@/components/Toast';
+import { supabase } from '@/lib/supabase-client';
 import { Page, Hotspot } from '@/types';
 
 export default function EditPage() {
@@ -203,6 +204,15 @@ export default function EditPage() {
     window.open(`/${slug}`, '_blank');
   };
 
+  const getImageUrl = (page: Page) => {
+    if (page.image_url) {
+      return page.image_url;
+    }
+    // Fallback: generate URL from image_path
+    const { data } = supabase.storage.from('images').getPublicUrl(page.image_path);
+    return data.publicUrl;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -307,7 +317,7 @@ export default function EditPage() {
       <div className="p-6">
         <div className="bg-white rounded-lg shadow-sm p-6 max-w-none overflow-hidden">
           <ImageCanvas
-            imageUrl={page.image_url}
+            imageUrl={getImageUrl(page)}
             hotspots={hotspots}
             mode="edit"
             onCreate={handleCreateHotspot}

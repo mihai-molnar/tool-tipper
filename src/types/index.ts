@@ -4,6 +4,7 @@ export interface Page {
   edit_token?: string;
   title?: string;
   image_path: string;
+  image_url?: string;
   image_width?: number;
   image_height?: number;
   created_at: string;
