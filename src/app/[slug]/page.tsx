@@ -4,15 +4,16 @@ import { supabaseServer } from '@/lib/supabase-server';
 import PublicView from './PublicView';
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
+    const { slug } = await params;
     const { data: page } = await supabaseServer
       .from('page')
       .select('title, slug')
-      .eq('slug', params.slug)
+      .eq('slug', slug)
       .single();
 
     if (!page) {
@@ -40,11 +41,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PublicPage({ params }: PageProps) {
   try {
+    const { slug } = await params;
     // Get page data
     const { data: page, error: pageError } = await supabaseServer
       .from('page')
       .select('id, slug, title, image_path, image_width, image_height, created_at, updated_at')
-      .eq('slug', params.slug)
+      .eq('slug', slug)
       .single();
 
     if (pageError || !page) {
@@ -79,8 +81,8 @@ export default async function PublicPage({ params }: PageProps) {
         hotspots={hotspots || []} 
       />
     );
-  } catch (error) {
-    console.error('Public page error:', error);
+  } catch (_error) {
+    console.error('Public page error:', _error);
     notFound();
   }
 }
