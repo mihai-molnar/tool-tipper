@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .from('user_profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle(); // Use maybeSingle() instead of single() to handle missing records
 
       if (error) {
         // If table doesn't exist, create a fallback profile
@@ -84,13 +84,34 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
         throw error;
       }
+
+      // If no profile exists for this user, create a default one
+      if (!data) {
+        console.log('No profile found for user, creating default');
+        setProfile({
+          id: userId,
+          email: user?.email || '',
+          plan_type: 'free' as const,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+        return;
+      }
+
       setProfile(data);
     } catch (error) {
       // Suppress table not found errors - expected until auth schema is run
       if (error && typeof error === 'object' && 'code' in error && error.code !== 'PGRST205') {
         console.error('Error fetching profile:', error);
       }
-      setProfile(null);
+      // Create fallback profile even on error
+      setProfile({
+        id: userId,
+        email: user?.email || '',
+        plan_type: 'free' as const,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
     }
   };
 
