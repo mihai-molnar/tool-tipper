@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
 -- Create user usage tracking table
 CREATE TABLE IF NOT EXISTS public.user_usage (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid REFERENCES public.user_profiles(id) ON DELETE CASCADE NOT NULL,
+  user_id uuid REFERENCES public.user_profiles(id) ON DELETE CASCADE NOT NULL UNIQUE,
   total_hotspots integer DEFAULT 0 NOT NULL,
   total_pages integer DEFAULT 0 NOT NULL,
   last_updated timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -33,7 +33,7 @@ ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES public.user_profiles(id) ON DEL
 -- Add index for performance
 CREATE INDEX IF NOT EXISTS idx_page_user_id ON public.page(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_profiles_email ON public.user_profiles(email);
-CREATE INDEX IF NOT EXISTS idx_user_usage_user_id ON public.user_usage(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_usage_user_id_unique ON public.user_usage(user_id);
 
 -- RLS Policies for user_profiles
 ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;

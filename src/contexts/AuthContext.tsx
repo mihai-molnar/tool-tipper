@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .from('user_usage')
         .select('*')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle(); // Use maybeSingle() instead of single() to handle missing records
 
       if (error) {
         // If table doesn't exist, create a fallback usage
@@ -116,13 +116,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
         throw error;
       }
+
+      // If no usage record exists for this user, create a default one
+      if (!data) {
+        console.log('No usage record found for user, creating default');
+        setUsage({
+          total_hotspots: 0,
+          total_pages: 0,
+          last_updated: new Date().toISOString(),
+        });
+        return;
+      }
+
       setUsage(data);
     } catch (error) {
       // Suppress table not found errors - expected until auth schema is run
       if (error && typeof error === 'object' && 'code' in error && error.code !== 'PGRST205') {
         console.error('Error fetching usage:', error);
       }
-      setUsage(null);
+      setUsage({
+        total_hotspots: 0,
+        total_pages: 0,
+        last_updated: new Date().toISOString(),
+      });
     }
   };
 
