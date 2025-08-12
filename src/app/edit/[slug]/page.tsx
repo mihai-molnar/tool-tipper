@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import { Copy, ExternalLink, Edit3, Save, X } from 'lucide-react';
+import { Copy, ExternalLink, Edit3, Save, X, ChevronDown, Eye, Share, Plus } from 'lucide-react';
 import ImageCanvas from '@/components/ImageCanvas';
 import { useToast } from '@/components/Toast';
 import { supabase } from '@/lib/supabase-client';
 import { Page, Hotspot } from '@/types';
 import { isTouchDevice } from '@/lib/touch';
+import Link from 'next/link';
 
 export default function EditPage() {
   const params = useParams();
@@ -25,6 +26,8 @@ export default function EditPage() {
   const [error, setError] = useState<string | null>(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchPageData = useCallback(async () => {
     try {
@@ -54,6 +57,18 @@ export default function EditPage() {
 
     fetchPageData();
   }, [slug, editToken, fetchPageData]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleCreateHotspot = async (x_pct: number, y_pct: number, text: string) => {
     if (!editToken || !page) return;
@@ -206,6 +221,10 @@ export default function EditPage() {
     window.open(`/${slug}`, '_blank');
   };
 
+  const handleCreateNew = () => {
+    router.push('/new');
+  };
+
   const getImageUrl = (page: Page) => {
     if (page.image_url) {
       return page.image_url;
@@ -251,11 +270,11 @@ export default function EditPage() {
           {/* Title Section */}
           <div className="flex-1 min-w-0 max-w-xs sm:max-w-md">
               {isEditingTitle ? (
-                <div className="flex items-center space-x-2">
+                <div className="relative">
                   <input
                     value={titleValue}
                     onChange={(e) => setTitleValue(e.target.value)}
-                    className="text-lg font-semibold border border-gray-300 rounded px-2 py-1 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                    className="text-lg font-semibold border border-gray-300 rounded px-2 py-1 pr-16 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
                     placeholder="Enter title..."
                     maxLength={30}
                     onKeyDown={(e) => {
@@ -267,23 +286,25 @@ export default function EditPage() {
                     }}
                     autoFocus
                   />
-                  <button
-                    onClick={() => {
-                      setIsEditingTitle(false);
-                      setTitleValue(page.title || '');
-                    }}
-                    className="p-2 text-gray-400 hover:text-gray-600 cursor-pointer min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:p-1 flex items-center justify-center"
-                    title="Cancel"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={handleUpdateTitle}
-                    className="p-2 text-green-600 hover:text-green-700 cursor-pointer min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:p-1 flex items-center justify-center"
-                    title="Save"
-                  >
-                    <Save className="w-4 h-4" />
-                  </button>
+                  <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+                    <button
+                      onClick={() => {
+                        setIsEditingTitle(false);
+                        setTitleValue(page.title || '');
+                      }}
+                      className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer rounded hover:bg-gray-100 transition-colors"
+                      title="Cancel"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={handleUpdateTitle}
+                      className="p-1 text-green-600 hover:text-green-700 cursor-pointer rounded hover:bg-green-50 transition-colors"
+                      title="Save"
+                    >
+                      <Save className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <button
@@ -304,26 +325,60 @@ export default function EditPage() {
           {/* Action Buttons */}
           <div className="flex items-center space-x-2 flex-shrink-0">
             <button
-              onClick={handleViewPublic}
+              onClick={handleCreateNew}
               className="flex items-center space-x-1 px-2 sm:px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer min-h-[44px] sm:min-h-0 whitespace-nowrap"
             >
-              <ExternalLink className="w-4 h-4" />
-              <span className="hidden sm:inline">View</span>
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Create New</span>
             </button>
-            <button
-              onClick={handleCopyShareLink}
-              className="flex items-center space-x-1 px-2 sm:px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer min-h-[44px] sm:min-h-0 whitespace-nowrap"
-            >
-              <Copy className="w-4 h-4" />
-              <span className="hidden sm:inline">Share</span>
-            </button>
-            <button
-              onClick={handleCopyEditLink}
-              className="flex items-center space-x-1 px-2 sm:px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer min-h-[44px] sm:min-h-0 whitespace-nowrap"
-            >
-              <Copy className="w-4 h-4" />
-              <span className="hidden sm:inline">Edit Link</span>
-            </button>
+            
+            {/* Action Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer min-h-[44px] sm:min-h-0"
+              >
+                <span>Actions</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                  <div className="py-1">
+                    <button
+                      onClick={() => {
+                        handleViewPublic();
+                        setShowDropdown(false);
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors"
+                    >
+                      <Eye className="w-4 h-4 mr-3" />
+                      Preview
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleCopyShareLink();
+                        setShowDropdown(false);
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors"
+                    >
+                      <Share className="w-4 h-4 mr-3" />
+                      Share Link
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleCopyEditLink();
+                        setShowDropdown(false);
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors"
+                    >
+                      <Copy className="w-4 h-4 mr-3" />
+                      Share Edit URL
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
