@@ -15,13 +15,30 @@ export default function Home() {
           </p>
         </div>
         
-        <Link
-          href="/new"
-          className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium cursor-pointer min-h-[48px]"
-        >
-          <Upload className="w-5 h-5 mr-2" />
-          Create New
-        </Link>
+        <div className="space-y-3">
+          <Link
+            href="/new"
+            className="inline-flex items-center justify-center w-full px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium cursor-pointer min-h-[48px]"
+          >
+            <Upload className="w-5 h-5 mr-2" />
+            Create New
+          </Link>
+          
+          <div className="flex space-x-3">
+            <Link
+              href="/auth/login"
+              className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors font-medium cursor-pointer min-h-[44px]"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/auth/signup"
+              className="flex-1 inline-flex items-center justify-center px-4 py-2 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors font-medium cursor-pointer min-h-[44px]"
+            >
+              Sign Up
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
