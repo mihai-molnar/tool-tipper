@@ -1,10 +1,12 @@
 'use client';
 
 // import { useState } from 'react';
-import { Share, Upload } from 'lucide-react';
+import { Share, Plus } from 'lucide-react';
 import Link from 'next/link';
 import ImageCanvas from '@/components/ImageCanvas';
 import { useToast } from '@/components/Toast';
+import Header from '@/components/Header';
+import Tooltip from '@/components/Tooltip';
 import { Page, Hotspot } from '@/types';
 import { isTouchDevice } from '@/lib/touch';
 
@@ -55,53 +57,33 @@ export default function PublicView({ page, hotspots }: PublicViewProps) {
     }
   };
 
+  const actions = (
+    <>
+      <Tooltip content="Share">
+        <button
+          onClick={handleShare}
+          className="flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+        >
+          <Share className="w-4 h-4" />
+        </button>
+      </Tooltip>
+      <Tooltip content="Create Your Own">
+        <Link
+          href="/new"
+          className="flex items-center justify-center p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+        </Link>
+      </Tooltip>
+    </>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
-            <div className="flex items-center space-x-2 whitespace-nowrap">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm">
-                <span className="text-white font-bold text-sm">🎯</span>
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Tool-Tipper
-              </span>
-            </div>
-            {page.title && (
-              <>
-                <span className="text-gray-300 hidden sm:inline">/</span>
-                <h1 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{page.title}</h1>
-              </>
-            )}
-          </div>
-
-          <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-            <button
-              onClick={handleShare}
-              className="flex items-center space-x-1 px-2 sm:px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer min-h-[44px] sm:min-h-0"
-            >
-              <Share className="w-4 h-4" />
-              <span className="hidden sm:inline">Share</span>
-            </button>
-            <Link
-              href="/new"
-              className="flex items-center space-x-1 px-2 sm:px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors min-h-[44px] sm:min-h-0"
-            >
-              <Upload className="w-4 h-4" />
-              <span className="hidden sm:inline">Create Your Own</span>
-            </Link>
-          </div>
-        </div>
-        
-        {/* Mobile title on separate line if too long */}
-        {page.title && (
-          <div className="mt-2 sm:hidden">
-            <h1 className="text-lg font-semibold text-gray-900">{page.title}</h1>
-          </div>
-        )}
-      </div>
+      <Header 
+        title={page.title || undefined}
+        actions={actions}
+      />
 
       {/* Canvas */}
       <div className="p-4 sm:p-6">

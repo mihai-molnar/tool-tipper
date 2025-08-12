@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import UploadDropzone from '@/components/UploadDropzone';
 import { useToast } from '@/components/Toast';
+import Header from '@/components/Header';
 import { CreatePageResponse, UploadResponse } from '@/types';
 
 export default function NewPage() {
@@ -71,7 +72,9 @@ export default function NewPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 sm:py-12">
+    <>
+      <Header />
+      <div className="min-h-screen bg-gray-50 py-6 sm:py-12">
       <div className="max-w-2xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-8">
           <div className="text-center mb-6 sm:mb-8">
@@ -156,6 +159,7 @@ export default function NewPage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

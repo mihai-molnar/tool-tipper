@@ -69,10 +69,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // If table doesn't exist, create a fallback profile
+        if (error.code === 'PGRST205') {
+          console.warn('user_profiles table not found. Run database/auth-schema.sql');
+          setProfile({
+            id: userId,
+            email: user?.email || '',
+            plan_type: 'free' as const,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+          return;
+        }
+        throw error;
+      }
       setProfile(data);
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      // Suppress table not found errors - expected until auth schema is run
+      if (error && typeof error === 'object' && 'code' in error && error.code !== 'PGRST205') {
+        console.error('Error fetching profile:', error);
+      }
       setProfile(null);
     }
   };
@@ -86,10 +103,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .eq('user_id', userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // If table doesn't exist, create a fallback usage
+        if (error.code === 'PGRST205') {
+          console.warn('user_usage table not found. Run database/auth-schema.sql');
+          setUsage({
+            total_hotspots: 0,
+            total_pages: 0,
+            last_updated: new Date().toISOString(),
+          });
+          return;
+        }
+        throw error;
+      }
       setUsage(data);
     } catch (error) {
-      console.error('Error fetching usage:', error);
+      // Suppress table not found errors - expected until auth schema is run
+      if (error && typeof error === 'object' && 'code' in error && error.code !== 'PGRST205') {
+        console.error('Error fetching usage:', error);
+      }
       setUsage(null);
     }
   };
@@ -160,16 +192,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Sign out
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (!error) {
-        setUser(null);
-        setProfile(null);
-        setUsage(null);
-        setSession(null);
-      }
-      return { error };
+      // Try Supabase sign out with timeout
+      const signOutPromise = supabase.auth.signOut();
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Sign out timeout')), 3000);
+      });
+      
+      await Promise.race([signOutPromise, timeoutPromise]);
+      
+      // Clear local state
+      setUser(null);
+      setProfile(null);
+      setUsage(null);
+      setSession(null);
+      
+      return { error: null };
     } catch (error) {
-      return { error };
+      // Even if Supabase fails, clear local state
+      setUser(null);
+      setProfile(null);
+      setUsage(null);
+      setSession(null);
+      
+      return { error: null }; // Return success since we cleared local state
     }
   };
 
@@ -207,18 +252,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await Promise.all([
-          fetchProfile(session.user.id),
-          fetchUsage(session.user.id),
-        ]);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await Promise.all([
+            fetchProfile(session.user.id),
+            fetchUsage(session.user.id),
+          ]);
+        } else {
+          // For anonymous users, set null states immediately
+          setProfile(null);
+          setUsage(null);
+        }
+      } catch (error) {
+        console.error('Error getting initial session:', error);
+        setUser(null);
+        setProfile(null);
+        setUsage(null);
+        setSession(null);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     getInitialSession();
@@ -226,6 +283,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        setLoading(true);
         setSession(session);
         setUser(session?.user ?? null);
 

@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import { Copy, ExternalLink, Edit3, Save, X, ChevronDown, Eye, Share, Plus } from 'lucide-react';
+import { Save, X, Share, Plus } from 'lucide-react';
 import ImageCanvas from '@/components/ImageCanvas';
 import { useToast } from '@/components/Toast';
+import Header from '@/components/Header';
+import Tooltip from '@/components/Tooltip';
 import { supabase } from '@/lib/supabase-client';
 import { Page, Hotspot } from '@/types';
 import { isTouchDevice } from '@/lib/touch';
@@ -26,8 +28,6 @@ export default function EditPage() {
   const [error, setError] = useState<string | null>(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
-  const [showDropdown, setShowDropdown] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchPageData = useCallback(async () => {
     try {
@@ -58,17 +58,6 @@ export default function EditPage() {
     fetchPageData();
   }, [slug, editToken, fetchPageData]);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowDropdown(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const handleCreateHotspot = async (x_pct: number, y_pct: number, text: string) => {
     if (!editToken || !page) return;
@@ -212,15 +201,6 @@ export default function EditPage() {
     copyToClipboard(shareUrl, 'Share link');
   };
 
-  const handleCopyEditLink = () => {
-    const editUrl = `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/edit/${slug}?token=${editToken}`;
-    copyToClipboard(editUrl, 'Edit link');
-  };
-
-  const handleViewPublic = () => {
-    window.open(`/${slug}`, '_blank');
-  };
-
   const handleCreateNew = () => {
     router.push('/new');
   };
@@ -262,133 +242,82 @@ export default function EditPage() {
     );
   }
 
+  const titleElement = isEditingTitle ? (
+    <div className="relative min-w-0 max-w-sm">
+      <input
+        value={titleValue}
+        onChange={(e) => setTitleValue(e.target.value)}
+        className="text-lg font-semibold border border-gray-300 rounded px-2 py-1 pr-16 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full min-w-0"
+        placeholder="Enter title..."
+        maxLength={30}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') handleUpdateTitle();
+          if (e.key === 'Escape') {
+            setIsEditingTitle(false);
+            setTitleValue(page.title || '');
+          }
+        }}
+        autoFocus
+      />
+      <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+        <button
+          onClick={() => {
+            setIsEditingTitle(false);
+            setTitleValue(page.title || '');
+          }}
+          className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer rounded hover:bg-gray-100 transition-colors"
+          title="Cancel"
+        >
+          <X className="w-3 h-3" />
+        </button>
+        <button
+          onClick={handleUpdateTitle}
+          className="p-1 text-green-600 hover:text-green-700 cursor-pointer rounded hover:bg-green-50 transition-colors"
+          title="Save"
+        >
+          <Save className="w-3 h-3" />
+        </button>
+      </div>
+    </div>
+  ) : null;
+
+  const actions = (
+    <>
+      <Tooltip content="Create New">
+        <button
+          onClick={handleCreateNew}
+          className="flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+      </Tooltip>
+      
+      <Tooltip content="Share">
+        <button
+          onClick={handleCopyShareLink}
+          className="flex items-center justify-center p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer"
+        >
+          <Share className="w-4 h-4" />
+        </button>
+      </Tooltip>
+    </>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
-        <div className="flex items-center justify-between space-x-4">
-          {/* Branding & Title - Left */}
-          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
-            <div className="flex items-center space-x-2 whitespace-nowrap">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm">
-                <span className="text-white font-bold text-sm">🎯</span>
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Tool-Tipper
-              </span>
-            </div>
-            
-            <span className="text-gray-300 hidden sm:inline">/</span>
-            
-            {isEditingTitle ? (
-              <div className="relative flex-1 min-w-0">
-                <input
-                  value={titleValue}
-                  onChange={(e) => setTitleValue(e.target.value)}
-                  className="text-lg font-semibold border border-gray-300 rounded px-2 py-1 pr-16 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-                  placeholder="Enter title..."
-                  maxLength={30}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleUpdateTitle();
-                    if (e.key === 'Escape') {
-                      setIsEditingTitle(false);
-                      setTitleValue(page.title || '');
-                    }
-                  }}
-                  autoFocus
-                />
-                <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center space-x-1">
-                  <button
-                    onClick={() => {
-                      setIsEditingTitle(false);
-                      setTitleValue(page.title || '');
-                    }}
-                    className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer rounded hover:bg-gray-100 transition-colors"
-                    title="Cancel"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                  <button
-                    onClick={handleUpdateTitle}
-                    className="p-1 text-green-600 hover:text-green-700 cursor-pointer rounded hover:bg-green-50 transition-colors"
-                    title="Save"
-                  >
-                    <Save className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <h1 className="text-base sm:text-lg font-semibold text-gray-900 truncate cursor-pointer hover:text-gray-700 transition-colors" 
-                  onClick={() => setIsEditingTitle(true)}
-                  title="Click to edit title">
-                {(page.title || 'Untitled').length > 20 
-                  ? `${(page.title || 'Untitled').substring(0, 20)}...` 
-                  : (page.title || 'Untitled')
-                }
-              </h1>
-            )}
-          </div>
-          
-          {/* Action Buttons - Right */}
-          <div className="flex items-center space-x-2 flex-shrink-0">
-            <button
-              onClick={handleCreateNew}
-              className="flex items-center space-x-1 px-2 sm:px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer min-h-[44px] sm:min-h-0 whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Create New</span>
-            </button>
-            
-            {/* Action Dropdown */}
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setShowDropdown(!showDropdown)}
-                className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer min-h-[44px] sm:min-h-0"
-              >
-                <span>Actions</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                  <div className="py-1">
-                    <button
-                      onClick={() => {
-                        handleViewPublic();
-                        setShowDropdown(false);
-                      }}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors"
-                    >
-                      <Eye className="w-4 h-4 mr-3" />
-                      Preview
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleCopyShareLink();
-                        setShowDropdown(false);
-                      }}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors"
-                    >
-                      <Share className="w-4 h-4 mr-3" />
-                      Share Link
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleCopyEditLink();
-                        setShowDropdown(false);
-                      }}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors"
-                    >
-                      <Copy className="w-4 h-4 mr-3" />
-                      Share Edit URL
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+      <Header 
+        title={page.title || 'Untitled'}
+        onTitleEdit={() => setIsEditingTitle(true)}
+        isEditingTitle={isEditingTitle}
+        actions={actions}
+      />
+      
+      {/* Render title editing outside header when editing */}
+      {isEditingTitle && (
+        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-2">
+          {titleElement}
         </div>
-      </div>
+      )}
 
       {/* Canvas */}
       <div className="p-4 sm:p-6">
