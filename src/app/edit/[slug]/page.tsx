@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import { Copy, ExternalLink, Edit3, Save } from 'lucide-react';
+import { Copy, ExternalLink, Edit3, Save, X } from 'lucide-react';
 import ImageCanvas from '@/components/ImageCanvas';
 import { useToast } from '@/components/Toast';
 import { supabase } from '@/lib/supabase-client';
@@ -247,16 +247,17 @@ export default function EditPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
-            <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between space-x-4">
+          {/* Title Section */}
+          <div className="flex-1 min-w-0 max-w-xs sm:max-w-md">
               {isEditingTitle ? (
                 <div className="flex items-center space-x-2">
                   <input
                     value={titleValue}
                     onChange={(e) => setTitleValue(e.target.value)}
-                    className="text-lg sm:text-xl font-semibold border border-gray-300 rounded px-2 py-1 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent flex-1 min-w-0"
+                    className="text-lg font-semibold border border-gray-300 rounded px-2 py-1 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
                     placeholder="Enter title..."
+                    maxLength={30}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleUpdateTitle();
                       if (e.key === 'Escape') {
@@ -267,29 +268,41 @@ export default function EditPage() {
                     autoFocus
                   />
                   <button
+                    onClick={() => {
+                      setIsEditingTitle(false);
+                      setTitleValue(page.title || '');
+                    }}
+                    className="p-2 text-gray-400 hover:text-gray-600 cursor-pointer min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:p-1 flex items-center justify-center"
+                    title="Cancel"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                  <button
                     onClick={handleUpdateTitle}
                     className="p-2 text-green-600 hover:text-green-700 cursor-pointer min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:p-1 flex items-center justify-center"
+                    title="Save"
                   >
                     <Save className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center space-x-2">
-                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-                    {page.title || 'Untitled'}
+                <button
+                  onClick={() => setIsEditingTitle(true)}
+                  className="text-left hover:bg-gray-50 rounded px-2 py-1 -mx-2 -my-1 transition-colors cursor-pointer w-full min-w-0"
+                  title="Click to edit title"
+                >
+                  <h1 className="text-lg font-semibold text-gray-900 truncate">
+                    {(page.title || 'Untitled').length > 20 
+                      ? `${(page.title || 'Untitled').substring(0, 20)}...` 
+                      : (page.title || 'Untitled')
+                    }
                   </h1>
-                  <button
-                    onClick={() => setIsEditingTitle(true)}
-                    className="p-2 text-gray-400 hover:text-gray-600 cursor-pointer min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:p-1 flex items-center justify-center flex-shrink-0"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                  </button>
-                </div>
+                </button>
               )}
-            </div>
           </div>
-
-          <div className="flex items-center space-x-2 overflow-x-auto">
+          
+          {/* Action Buttons */}
+          <div className="flex items-center space-x-2 flex-shrink-0">
             <button
               onClick={handleViewPublic}
               className="flex items-center space-x-1 px-2 sm:px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer min-h-[44px] sm:min-h-0 whitespace-nowrap"
@@ -299,14 +312,14 @@ export default function EditPage() {
             </button>
             <button
               onClick={handleCopyShareLink}
-              className="flex items-center space-x-1 px-2 sm:px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer min-h-[44px] sm:min-h-0 whitespace-nowrap"
+              className="flex items-center space-x-1 px-2 sm:px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer min-h-[44px] sm:min-h-0 whitespace-nowrap"
             >
               <Copy className="w-4 h-4" />
               <span className="hidden sm:inline">Share</span>
             </button>
             <button
               onClick={handleCopyEditLink}
-              className="flex items-center space-x-1 px-2 sm:px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer min-h-[44px] sm:min-h-0 whitespace-nowrap"
+              className="flex items-center space-x-1 px-2 sm:px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer min-h-[44px] sm:min-h-0 whitespace-nowrap"
             >
               <Copy className="w-4 h-4" />
               <span className="hidden sm:inline">Edit Link</span>
