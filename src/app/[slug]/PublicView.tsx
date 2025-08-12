@@ -61,9 +61,14 @@ export default function PublicView({ page, hotspots }: PublicViewProps) {
       <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
-            <Link href="/" className="text-blue-600 hover:text-blue-700 font-semibold whitespace-nowrap">
-              Tool-Tipper
-            </Link>
+            <div className="flex items-center space-x-2 whitespace-nowrap">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm">
+                <span className="text-white font-bold text-sm">🎯</span>
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Tool-Tipper
+              </span>
+            </div>
             {page.title && (
               <>
                 <span className="text-gray-300 hidden sm:inline">/</span>
@@ -126,7 +131,7 @@ export default function PublicView({ page, hotspots }: PublicViewProps) {
       </div>
 
       {ToastComponent && (
-        <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 z-50 sm:min-w-96">
+        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 z-50 sm:min-w-96">
           {ToastComponent}
         </div>
       )}

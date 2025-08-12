@@ -267,62 +267,69 @@ export default function EditPage() {
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between space-x-4">
-          {/* Title Section */}
-          <div className="flex-1 min-w-0 max-w-xs sm:max-w-md">
-              {isEditingTitle ? (
-                <div className="relative">
-                  <input
-                    value={titleValue}
-                    onChange={(e) => setTitleValue(e.target.value)}
-                    className="text-lg font-semibold border border-gray-300 rounded px-2 py-1 pr-16 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-                    placeholder="Enter title..."
-                    maxLength={30}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleUpdateTitle();
-                      if (e.key === 'Escape') {
-                        setIsEditingTitle(false);
-                        setTitleValue(page.title || '');
-                      }
-                    }}
-                    autoFocus
-                  />
-                  <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center space-x-1">
-                    <button
-                      onClick={() => {
-                        setIsEditingTitle(false);
-                        setTitleValue(page.title || '');
-                      }}
-                      className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer rounded hover:bg-gray-100 transition-colors"
-                      title="Cancel"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                    <button
-                      onClick={handleUpdateTitle}
-                      className="p-1 text-green-600 hover:text-green-700 cursor-pointer rounded hover:bg-green-50 transition-colors"
-                      title="Save"
-                    >
-                      <Save className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setIsEditingTitle(true)}
-                  className="text-left hover:bg-gray-50 rounded px-2 py-1 -mx-2 -my-1 transition-colors cursor-pointer w-full min-w-0"
-                  title="Click to edit title"
-                >
-                  <h1 className="text-lg font-semibold text-gray-900 truncate">
-                    {(page.title || 'Untitled').length > 20 
-                      ? `${(page.title || 'Untitled').substring(0, 20)}...` 
-                      : (page.title || 'Untitled')
+          {/* Branding & Title - Left */}
+          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
+            <div className="flex items-center space-x-2 whitespace-nowrap">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm">
+                <span className="text-white font-bold text-sm">🎯</span>
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Tool-Tipper
+              </span>
+            </div>
+            
+            <span className="text-gray-300 hidden sm:inline">/</span>
+            
+            {isEditingTitle ? (
+              <div className="relative flex-1 min-w-0">
+                <input
+                  value={titleValue}
+                  onChange={(e) => setTitleValue(e.target.value)}
+                  className="text-lg font-semibold border border-gray-300 rounded px-2 py-1 pr-16 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                  placeholder="Enter title..."
+                  maxLength={30}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleUpdateTitle();
+                    if (e.key === 'Escape') {
+                      setIsEditingTitle(false);
+                      setTitleValue(page.title || '');
                     }
-                  </h1>
-                </button>
-              )}
+                  }}
+                  autoFocus
+                />
+                <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+                  <button
+                    onClick={() => {
+                      setIsEditingTitle(false);
+                      setTitleValue(page.title || '');
+                    }}
+                    className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer rounded hover:bg-gray-100 transition-colors"
+                    title="Cancel"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={handleUpdateTitle}
+                    className="p-1 text-green-600 hover:text-green-700 cursor-pointer rounded hover:bg-green-50 transition-colors"
+                    title="Save"
+                  >
+                    <Save className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <h1 className="text-base sm:text-lg font-semibold text-gray-900 truncate cursor-pointer hover:text-gray-700 transition-colors" 
+                  onClick={() => setIsEditingTitle(true)}
+                  title="Click to edit title">
+                {(page.title || 'Untitled').length > 20 
+                  ? `${(page.title || 'Untitled').substring(0, 20)}...` 
+                  : (page.title || 'Untitled')
+                }
+              </h1>
+            )}
           </div>
           
-          {/* Action Buttons */}
+          {/* Action Buttons - Right */}
           <div className="flex items-center space-x-2 flex-shrink-0">
             <button
               onClick={handleCreateNew}
@@ -398,7 +405,7 @@ export default function EditPage() {
       </div>
 
       {ToastComponent && (
-        <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 z-50 sm:min-w-96">
+        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 z-50 sm:min-w-96">
           {ToastComponent}
         </div>
       )}

@@ -75,7 +75,10 @@ export default function NewPage() {
       <div className="max-w-2xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-8">
           <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+              <span className="text-2xl">🎯</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
               Create New Tool-Tipper
             </h1>
             <p className="text-gray-600 text-sm sm:text-base px-2">
@@ -148,7 +151,7 @@ export default function NewPage() {
         </div>
 
         {ToastComponent && (
-          <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 z-50 sm:min-w-96">
+          <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 z-50 sm:min-w-96">
             {ToastComponent}
           </div>
         )}
