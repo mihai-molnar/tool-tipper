@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Hotspot as HotspotType } from '@/types';
 import { Trash2 } from 'lucide-react';
 import { isTouchDevice, isMobileViewport } from '@/lib/touch';
+import ConfirmModal from './ConfirmModal';
 
 interface HotspotProps {
   hotspot: HotspotType;
@@ -26,6 +27,7 @@ export default function Hotspot({
   const [editText, setEditText] = useState(hotspot.text);
   const [showTooltip, setShowTooltip] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   const isTouch = isTouchDevice();
@@ -54,9 +56,13 @@ export default function Hotspot({
   };
 
   const handleDelete = () => {
-    if (onDelete && window.confirm('Delete this hotspot?')) {
+    if (onDelete) {
       onDelete(hotspot.id);
     }
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
   };
 
   const handleHotspotClick = (e: React.MouseEvent) => {
@@ -238,7 +244,7 @@ export default function Hotspot({
             isMobile ? 'flex-col space-y-3' : 'space-x-2'
           }`}>
             <button
-              onClick={handleDelete}
+              onClick={handleDeleteClick}
               className={`flex items-center justify-center space-x-1 px-3 py-2 text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer ${
                 isMobile ? 'w-full text-base min-h-[44px]' : 'text-sm'
               }`}
@@ -319,6 +325,18 @@ export default function Hotspot({
           </div>
         );
       })()}
+      
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        title="Delete Hotspot"
+        message="Are you sure you want to delete this hotspot? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </>
   );
 }
