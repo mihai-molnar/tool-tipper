@@ -7,12 +7,14 @@ import ImageCanvas from '@/components/ImageCanvas';
 import { useToast } from '@/components/Toast';
 import { supabase } from '@/lib/supabase-client';
 import { Page, Hotspot } from '@/types';
+import { isTouchDevice } from '@/lib/touch';
 
 export default function EditPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { showToast, ToastComponent } = useToast();
+  const isTouch = isTouchDevice();
   
   const slug = params.slug as string;
   const editToken = searchParams.get('token');
@@ -244,16 +246,16 @@ export default function EditPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1">
+      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
+            <div className="flex-1 min-w-0">
               {isEditingTitle ? (
                 <div className="flex items-center space-x-2">
                   <input
                     value={titleValue}
                     onChange={(e) => setTitleValue(e.target.value)}
-                    className="text-xl font-semibold border border-gray-300 rounded px-2 py-1 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="text-lg sm:text-xl font-semibold border border-gray-300 rounded px-2 py-1 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent flex-1 min-w-0"
                     placeholder="Enter title..."
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleUpdateTitle();
@@ -266,19 +268,19 @@ export default function EditPage() {
                   />
                   <button
                     onClick={handleUpdateTitle}
-                    className="p-1 text-green-600 hover:text-green-700 cursor-pointer"
+                    className="p-2 text-green-600 hover:text-green-700 cursor-pointer min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:p-1 flex items-center justify-center"
                   >
                     <Save className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center space-x-2">
-                  <h1 className="text-xl font-semibold text-gray-900">
+                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                     {page.title || 'Untitled'}
                   </h1>
                   <button
                     onClick={() => setIsEditingTitle(true)}
-                    className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer"
+                    className="p-2 text-gray-400 hover:text-gray-600 cursor-pointer min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:p-1 flex items-center justify-center flex-shrink-0"
                   >
                     <Edit3 className="w-4 h-4" />
                   </button>
@@ -287,35 +289,35 @@ export default function EditPage() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 overflow-x-auto">
             <button
               onClick={handleViewPublic}
-              className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+              className="flex items-center space-x-1 px-2 sm:px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer min-h-[44px] sm:min-h-0 whitespace-nowrap"
             >
               <ExternalLink className="w-4 h-4" />
-              <span>View</span>
+              <span className="hidden sm:inline">View</span>
             </button>
             <button
               onClick={handleCopyShareLink}
-              className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+              className="flex items-center space-x-1 px-2 sm:px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer min-h-[44px] sm:min-h-0 whitespace-nowrap"
             >
               <Copy className="w-4 h-4" />
-              <span>Share</span>
+              <span className="hidden sm:inline">Share</span>
             </button>
             <button
               onClick={handleCopyEditLink}
-              className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer"
+              className="flex items-center space-x-1 px-2 sm:px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer min-h-[44px] sm:min-h-0 whitespace-nowrap"
             >
               <Copy className="w-4 h-4" />
-              <span>Copy Edit Link</span>
+              <span className="hidden sm:inline">Edit Link</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Canvas */}
-      <div className="p-6">
-        <div className="bg-white rounded-lg shadow-sm p-6 max-w-none overflow-hidden">
+      <div className="p-4 sm:p-6">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 max-w-none overflow-hidden">
           <ImageCanvas
             imageUrl={getImageUrl(page)}
             hotspots={hotspots}
@@ -328,7 +330,7 @@ export default function EditPage() {
       </div>
 
       {ToastComponent && (
-        <div className="fixed top-4 right-4 z-50 min-w-96">
+        <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 z-50 sm:min-w-96">
           {ToastComponent}
         </div>
       )}

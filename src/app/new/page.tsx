@@ -71,14 +71,14 @@ export default function NewPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-12">
       <div className="max-w-2xl mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-8">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
               Create New Tool-Tipper
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-sm sm:text-base px-2">
               Upload an image and add interactive tooltips to share with others
             </p>
           </div>
@@ -94,7 +94,7 @@ export default function NewPage() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Give your image a title..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-base sm:text-sm"
                 disabled={uploading}
               />
             </div>
@@ -105,15 +105,15 @@ export default function NewPage() {
               <div className="space-y-4">
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900">{selectedFile.name}</p>
+                    <div className="min-w-0 flex-1 mr-4">
+                      <p className="font-medium text-gray-900 truncate text-sm sm:text-base">{selectedFile.name}</p>
                       <p className="text-sm text-gray-500">
                         {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
                       </p>
                     </div>
                     <button
                       onClick={handleRemoveFile}
-                      className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                      className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer p-2 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 sm:p-0 flex items-center justify-center flex-shrink-0"
                       disabled={uploading}
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,7 +127,7 @@ export default function NewPage() {
                   <button
                     onClick={handleUpload}
                     disabled={uploading}
-                    className="px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2 cursor-pointer"
+                    className="px-6 sm:px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2 cursor-pointer min-h-[48px] text-base sm:text-sm w-full sm:w-auto justify-center"
                   >
                     {uploading ? (
                       <>
@@ -148,7 +148,7 @@ export default function NewPage() {
         </div>
 
         {ToastComponent && (
-          <div className="fixed top-4 right-4 z-50 min-w-96">
+          <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 z-50 sm:min-w-96">
             {ToastComponent}
           </div>
         )}

@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { Hotspot as HotspotType } from '@/types';
 import Hotspot from './Hotspot';
+import { isTouchDevice, isMobileViewport } from '@/lib/touch';
 
 interface ImageCanvasProps {
   imageUrl: string;
@@ -27,6 +28,9 @@ export default function ImageCanvas({
   const [showNewHotspotForm, setShowNewHotspotForm] = useState(false);
   const [newHotspotPosition, setNewHotspotPosition] = useState({ x: 0, y: 0, x_pct: 0, y_pct: 0 });
   const [newHotspotText, setNewHotspotText] = useState('');
+  
+  const isTouch = isTouchDevice();
+  const isMobile = isMobileViewport();
 
   useEffect(() => {
     const updateSize = () => {
@@ -149,8 +153,12 @@ export default function ImageCanvas({
             />
             
             <div
-              className="absolute z-30 bg-white border border-gray-300 rounded-lg shadow-lg p-3 min-w-64"
-              style={{
+              className={`absolute z-30 bg-white border border-gray-300 rounded-lg shadow-lg p-3 ${
+                isMobile ? 'left-2 right-2 min-w-0' : 'min-w-64'
+              }`}
+              style={isMobile ? {
+                top: Math.max(newHotspotPosition.y + 30, 8),
+              } : {
                 left: Math.min(newHotspotPosition.x + 16, window.innerWidth - 300),
                 top: Math.max(newHotspotPosition.y - 60, 8),
               }}
@@ -159,22 +167,30 @@ export default function ImageCanvas({
                 value={newHotspotText}
                 onChange={(e) => setNewHotspotText(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full p-2 border border-gray-300 rounded text-sm resize-none text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                rows={3}
+                className={`w-full p-2 border border-gray-300 rounded resize-none text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  isMobile ? 'text-base min-h-[100px]' : 'text-sm'
+                }`}
+                rows={isMobile ? 4 : 3}
                 placeholder="Enter tooltip text..."
                 autoFocus
               />
               
-              <div className="flex justify-end space-x-2 mt-2">
+              <div className={`flex mt-3 ${
+                isMobile ? 'w-full space-x-3' : 'justify-end space-x-2'
+              }`}>
                 <button
                   onClick={handleCancelNewHotspot}
-                  className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded text-sm transition-colors cursor-pointer"
+                  className={`px-3 py-2 text-gray-600 hover:bg-gray-100 rounded transition-colors cursor-pointer ${
+                    isMobile ? 'flex-1 text-base min-h-[44px]' : 'text-sm'
+                  }`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSaveNewHotspot}
-                  className="px-3 py-1 bg-blue-600 text-white hover:bg-blue-700 rounded text-sm transition-colors cursor-pointer"
+                  className={`px-3 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded transition-colors cursor-pointer disabled:opacity-50 ${
+                    isMobile ? 'flex-1 text-base min-h-[44px]' : 'text-sm'
+                  }`}
                   disabled={!newHotspotText.trim()}
                 >
                   Save
@@ -186,8 +202,10 @@ export default function ImageCanvas({
       </div>
 
       {mode === 'edit' && (
-        <p className="text-sm text-gray-500 mt-2 text-center">
-          Click on the image to add a new hotspot
+        <p className={`text-gray-500 mt-2 text-center ${
+          isMobile ? 'text-base px-4' : 'text-sm'
+        }`}>
+          {isMobile ? 'Tap on the image to add a new hotspot' : 'Click on the image to add a new hotspot'}
         </p>
       )}
     </div>
