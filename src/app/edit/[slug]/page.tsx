@@ -7,6 +7,8 @@ import ImageCanvas from '@/components/ImageCanvas';
 import { useToast } from '@/components/Toast';
 import Header from '@/components/Header';
 import Tooltip from '@/components/Tooltip';
+import UpgradeModal from '@/components/UpgradeModal';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase-client';
 import { Page, Hotspot } from '@/types';
 import { isTouchDevice } from '@/lib/touch';
@@ -28,6 +30,9 @@ export default function EditPage() {
   const [error, setError] = useState<string | null>(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  const { user, profile, canCreateHotspot, getRemainingHotspots, refreshUsage } = useAuth();
 
   const fetchPageData = useCallback(async () => {
     try {
@@ -62,6 +67,24 @@ export default function EditPage() {
   const handleCreateHotspot = async (x_pct: number, y_pct: number, text: string) => {
     if (!editToken || !page) return;
 
+    // Check if user can create more hotspots (client-side check)
+    const currentCount = hotspots.length;
+    const maxFreeHotspots = 10;
+    
+    // For signed-in users, check their plan and total usage
+    if (user && profile && profile.plan_type === 'free') {
+      if (!canCreateHotspot()) {
+        setShowUpgradeModal(true);
+        return;
+      }
+    } else if (!user) {
+      // Anonymous user - check current page hotspots
+      if (currentCount >= maxFreeHotspots) {
+        setShowUpgradeModal(true);
+        return;
+      }
+    }
+
     // Show temporary hotspot
     const tempId = Date.now().toString();
     const tempHotspot: Hotspot = {
@@ -92,12 +115,26 @@ export default function EditPage() {
         }),
       });
 
+      if (response.status === 402) {
+        // Payment required - show upgrade modal
+        const errorData = await response.json();
+        setHotspots(prev => prev.filter(h => h.id !== tempId));
+        setShowUpgradeModal(true);
+        return;
+      }
+
       if (!response.ok) {
         throw new Error('Failed to create hotspot');
       }
 
       const newHotspot = await response.json();
       setHotspots(prev => prev.map(h => h.id === tempId ? newHotspot : h));
+      showToast('success', 'Hotspot created');
+      
+      // Refresh usage data for signed-in users
+      if (user) {
+        await refreshUsage();
+      }
     } catch (_err) {
       setHotspots(prev => prev.filter(h => h.id !== tempId));
       showToast('error', 'Failed to create hotspot');
@@ -154,6 +191,11 @@ export default function EditPage() {
       }
 
       showToast('success', 'Hotspot deleted');
+      
+      // Refresh usage data for signed-in users
+      if (user) {
+        await refreshUsage();
+      }
     } catch (_err) {
       // Revert optimistic update
       fetchPageData();
@@ -338,6 +380,14 @@ export default function EditPage() {
           {ToastComponent}
         </div>
       )}
+
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        currentHotspots={user && profile ? (profile.plan_type === 'free' ? 10 - getRemainingHotspots() : hotspots.length) : hotspots.length}
+        maxHotspots={10}
+        isSignedIn={!!user}
+      />
     </div>
   );
 }
