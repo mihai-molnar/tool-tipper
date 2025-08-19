@@ -115,46 +115,101 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Fetch user usage
+  // Fetch user usage with real-time fallback counting
   const fetchUsage = async (userId: string) => {
     try {
+      // First try to get from user_usage table
       const { data, error } = await supabase
         .from('user_usage')
         .select('*')
         .eq('user_id', userId)
-        .maybeSingle(); // Use maybeSingle() instead of single() to handle missing records
+        .maybeSingle();
 
       if (error) {
-        // If table doesn't exist, create a fallback usage
+        // If table doesn't exist, fall back to real-time counting
         if (error.code === 'PGRST205') {
-          console.warn('user_usage table not found. Run database/auth-schema.sql');
-          setUsage({
-            total_hotspots: 0,
-            total_pages: 0,
-            last_updated: new Date().toISOString(),
-          });
+          console.warn('user_usage table not found. Falling back to real-time counting');
+          await fetchUsageByDirectCounting(userId);
           return;
         }
         throw error;
       }
 
-      // If no usage record exists for this user, create a default one
+      // If no usage record exists, try to create/update it and fall back to counting
       if (!data) {
-        console.log('No usage record found for user, creating default');
-        setUsage({
-          total_hotspots: 0,
-          total_pages: 0,
-          last_updated: new Date().toISOString(),
-        });
+        console.log('No usage record found, attempting to update/create it');
+        try {
+          // Try to call the update function if it exists
+          await supabase.rpc('update_user_usage', { user_uuid: userId });
+          
+          // Try to fetch again
+          const { data: updatedData, error: retryError } = await supabase
+            .from('user_usage')
+            .select('*')
+            .eq('user_id', userId)
+            .maybeSingle();
+            
+          if (!retryError && updatedData) {
+            setUsage(updatedData);
+            return;
+          }
+        } catch (rpcError) {
+          console.log('RPC function not available, using direct counting');
+        }
+        
+        // Fall back to direct counting
+        await fetchUsageByDirectCounting(userId);
         return;
       }
 
       setUsage(data);
     } catch (error) {
-      // Suppress table not found errors - expected until auth schema is run
-      if (error && typeof error === 'object' && 'code' in error && error.code !== 'PGRST205') {
-        console.error('Error fetching usage:', error);
+      console.error('Error fetching usage, falling back to direct counting:', error);
+      await fetchUsageByDirectCounting(userId);
+    }
+  };
+
+  // Direct counting fallback when user_usage table doesn't exist or isn't populated
+  const fetchUsageByDirectCounting = async (userId: string) => {
+    try {
+      // Count pages for user first
+      const { data: pagesData, error: pagesError } = await supabase
+        .from('page')
+        .select('id')
+        .eq('user_id', userId);
+
+      if (pagesError && pagesError.code !== 'PGRST205') {
+        console.error('Error counting pages:', pagesError);
       }
+
+      const totalPages = pagesData?.length || 0;
+      let totalHotspots = 0;
+
+      if (pagesData && pagesData.length > 0) {
+        // Get all hotspots for user's pages
+        const pageIds = pagesData.map(page => page.id);
+        const { data: hotspotsData, error: hotspotsError } = await supabase
+          .from('hotspot')
+          .select('id')
+          .in('page_id', pageIds);
+
+        if (hotspotsError && hotspotsError.code !== 'PGRST205') {
+          console.error('Error counting hotspots:', hotspotsError);
+        }
+
+        totalHotspots = hotspotsData?.length || 0;
+      }
+
+      console.log(`Direct count for user ${userId}: ${totalHotspots} hotspots across ${totalPages} pages`);
+      
+      setUsage({
+        total_hotspots: totalHotspots,
+        total_pages: totalPages,
+        last_updated: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('Error with direct counting:', error);
+      // Final fallback - set to zero
       setUsage({
         total_hotspots: 0,
         total_pages: 0,

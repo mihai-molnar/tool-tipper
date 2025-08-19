@@ -54,9 +54,13 @@ export default function Home() {
             </div>
             {profile?.plan_type === 'free' && (
               <div className="mt-2 text-xs text-gray-500">
-                {10 - usage.total_hotspots} free hotspots remaining
+                {Math.max(0, 10 - usage.total_hotspots)} free hotspots remaining
               </div>
             )}
+            {/* Debug info - remove in production */}
+            <div className="mt-1 text-xs text-gray-400">
+              Debug: User {user.id.slice(0, 8)}..., Plan: {profile?.plan_type || 'unknown'}
+            </div>
           </div>
         )}
         

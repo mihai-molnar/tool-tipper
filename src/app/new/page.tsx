@@ -6,6 +6,7 @@ import UploadDropzone from '@/components/UploadDropzone';
 import { useToast } from '@/components/Toast';
 import Header from '@/components/Header';
 import { CreatePageResponse, UploadResponse } from '@/types';
+import { authenticatedFetch } from '@/lib/api-client';
 
 export default function NewPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -25,11 +26,8 @@ export default function NewPage() {
     
     try {
       // Create page first
-      const createResponse = await fetch('/api/page', {
+      const createResponse = await authenticatedFetch('/api/page', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ title: title.trim() || undefined }),
       });
 

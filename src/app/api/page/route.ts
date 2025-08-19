@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
         slug,
         edit_token: editToken,
         title,
+        // Leave user_id as null for now - will be linked when auth schema is set up
         // image_path will be set when image is uploaded
       })
       .select()

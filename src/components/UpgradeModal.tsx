@@ -82,7 +82,7 @@ export default function UpgradeModal({
                       <span className="font-semibold text-gray-900">Limit Reached!</span>
                     </div>
                     <p className="text-sm text-gray-700">
-                      You've used {currentHotspots} of {maxHotspots} free hotspots. 
+                      You&rsquo;ve used {currentHotspots} of {maxHotspots} free hotspots. 
                       {isSignedIn 
                         ? " Upgrade to Pro for unlimited hotspots!"
                         : " Sign up to track your usage and upgrade for unlimited hotspots!"
