@@ -1,8 +1,10 @@
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { X, Crown, Check, Zap } from 'lucide-react';
+import { X, Crown, Check, Zap, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { getStripe } from '@/lib/stripe-client';
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -19,13 +21,59 @@ export default function UpgradeModal({
   maxHotspots,
   isSignedIn 
 }: UpgradeModalProps) {
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+
   const handleSignUp = () => {
     window.location.href = '/auth/signup';
   };
 
-  const handleUpgrade = () => {
-    // TODO: Implement actual upgrade flow
-    alert('Upgrade flow will be implemented with Stripe integration');
+  const handleUpgrade = async () => {
+    if (!user || loading) return;
+    
+    setLoading(true);
+    
+    try {
+      // Create checkout session
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          userEmail: user.email,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create checkout session');
+      }
+
+      const { sessionId, url } = await response.json();
+
+      // Redirect to Stripe Checkout
+      if (url) {
+        window.location.href = url;
+      } else {
+        // Fallback: use Stripe.js to redirect
+        const stripe = await getStripe();
+        if (stripe) {
+          const { error } = await stripe.redirectToCheckout({ sessionId });
+          if (error) {
+            console.error('Stripe redirect error:', error);
+            throw error;
+          }
+        } else {
+          throw new Error('Stripe not loaded');
+        }
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      alert('Something went wrong. Please try again.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -131,9 +179,17 @@ export default function UpgradeModal({
                   {isSignedIn ? (
                     <button
                       onClick={handleUpgrade}
-                      className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-md hover:from-blue-700 hover:to-purple-700 transition-colors font-medium"
+                      disabled={loading}
+                      className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-md hover:from-blue-700 hover:to-purple-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     >
-                      Upgrade Now
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          Processing...
+                        </>
+                      ) : (
+                        'Upgrade Now'
+                      )}
                     </button>
                   ) : (
                     <button

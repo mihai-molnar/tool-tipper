@@ -1,12 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { Upload, Target } from 'lucide-react';
+import { Upload, Target, Crown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Header from '@/components/Header';
+import UpgradeModal from '@/components/UpgradeModal';
+import { useState } from 'react';
 
 export default function Home() {
   const { user, profile, usage, loading } = useAuth();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
@@ -91,16 +94,26 @@ export default function Home() {
           )}
 
           {user && profile?.plan_type === 'free' && (
-            <Link
-              href="/upgrade"
+            <button
+              onClick={() => setShowUpgradeModal(true)}
               className="inline-flex items-center justify-center w-full px-4 py-2 text-purple-600 border border-purple-600 rounded-md hover:bg-purple-50 transition-colors font-medium cursor-pointer min-h-[44px]"
             >
+              <Crown className="w-4 h-4 mr-2" />
               Upgrade to Pro
-            </Link>
+            </button>
           )}
         </div>
       </div>
       </div>
+      
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        currentHotspots={usage?.total_hotspots || 0}
+        maxHotspots={10}
+        isSignedIn={!!user}
+      />
     </>
   );
 }

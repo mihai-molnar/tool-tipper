@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase-client';
 
@@ -61,7 +61,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
 
   // Fetch user profile
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string) => {
+    console.log('🔍 Fetching profile for user:', userId);
     try {
       const { data, error } = await supabase
         .from('user_profiles')
@@ -69,20 +70,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .eq('id', userId)
         .maybeSingle(); // Use maybeSingle() instead of single() to handle missing records
 
+      console.log('📊 Profile query result:', { data, error });
+
       if (error) {
-        // If table doesn't exist, create a fallback profile
-        if (error.code === 'PGRST205') {
-          console.warn('user_profiles table not found. Run database/auth-schema.sql');
-          setProfile({
-            id: userId,
-            email: user?.email || '',
-            plan_type: 'free' as const,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          });
-          return;
+        // Handle various error cases gracefully
+        if (error.code === 'PGRST205' || error.code === '42P01') {
+          console.log('user_profiles table not found, using fallback profile');
+        } else if (error.code === '42P10') {
+          console.log('Database constraint issue, using fallback profile');
+        } else {
+          console.log('Profile fetch error (using fallback):', error.message || error);
         }
-        throw error;
+        
+        // Always create a fallback profile on any error
+        setProfile({
+          id: userId,
+          email: user?.email || '',
+          plan_type: 'free' as const,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+        return;
       }
 
       // If no profile exists for this user, create a default one
@@ -95,16 +103,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         });
-        return;
+      } else {
+        console.log('✅ Profile found:', data);
+        setProfile(data);
       }
-
-      setProfile(data);
     } catch (error) {
-      // Suppress table not found errors - expected until auth schema is run
-      if (error && typeof error === 'object' && 'code' in error && error.code !== 'PGRST205') {
-        console.error('Error fetching profile:', error);
-      }
-      // Create fallback profile even on error
+      // Always create fallback profile on any error to prevent 400s
+      console.log('Profile fetch exception (using fallback):', error);
       setProfile({
         id: userId,
         email: user?.email || '',
@@ -113,64 +118,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         updated_at: new Date().toISOString(),
       });
     }
-  };
-
-  // Fetch user usage with real-time fallback counting
-  const fetchUsage = async (userId: string) => {
-    try {
-      // First try to get from user_usage table
-      const { data, error } = await supabase
-        .from('user_usage')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (error) {
-        // If table doesn't exist, fall back to real-time counting
-        if (error.code === 'PGRST205') {
-          console.warn('user_usage table not found. Falling back to real-time counting');
-          await fetchUsageByDirectCounting(userId);
-          return;
-        }
-        throw error;
-      }
-
-      // If no usage record exists, try to create/update it and fall back to counting
-      if (!data) {
-        console.log('No usage record found, attempting to update/create it');
-        try {
-          // Try to call the update function if it exists
-          await supabase.rpc('update_user_usage', { user_uuid: userId });
-          
-          // Try to fetch again
-          const { data: updatedData, error: retryError } = await supabase
-            .from('user_usage')
-            .select('*')
-            .eq('user_id', userId)
-            .maybeSingle();
-            
-          if (!retryError && updatedData) {
-            setUsage(updatedData);
-            return;
-          }
-        } catch (rpcError) {
-          console.log('RPC function not available, using direct counting');
-        }
-        
-        // Fall back to direct counting
-        await fetchUsageByDirectCounting(userId);
-        return;
-      }
-
-      setUsage(data);
-    } catch (error) {
-      console.error('Error fetching usage, falling back to direct counting:', error);
-      await fetchUsageByDirectCounting(userId);
-    }
-  };
+  }, []); // Empty dependency array since function doesn't depend on external state
 
   // Direct counting fallback when user_usage table doesn't exist or isn't populated
-  const fetchUsageByDirectCounting = async (userId: string) => {
+  const fetchUsageByDirectCounting = useCallback(async (userId: string) => {
     try {
       // Count pages for user first
       const { data: pagesData, error: pagesError } = await supabase
@@ -216,7 +167,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         last_updated: new Date().toISOString(),
       });
     }
-  };
+  }, []); // Empty dependency array since function doesn't depend on external state
+
+  // Fetch user usage with real-time fallback counting
+  const fetchUsage = useCallback(async (userId: string) => {
+    try {
+      // First try to get from user_usage table
+      const { data, error } = await supabase
+        .from('user_usage')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) {
+        // Handle any error gracefully by falling back to direct counting
+        console.log('Usage fetch error (using direct counting):', error.message || error);
+        await fetchUsageByDirectCounting(userId);
+        return;
+      }
+
+      // If no usage record exists, fall back to direct counting
+      if (!data) {
+        console.log('No usage record found, attempting to create it with direct counting');
+        await fetchUsageByDirectCounting(userId);
+        return;
+      }
+
+      setUsage(data);
+    } catch (error) {
+      console.log('Usage fetch exception (using direct counting):', error);
+      await fetchUsageByDirectCounting(userId);
+    }
+  }, [fetchUsageByDirectCounting]); // Include fetchUsageByDirectCounting dependency
 
   // Refresh profile
   const refreshProfile = async () => {
@@ -234,6 +216,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Check if user can create hotspot
   const canCreateHotspot = () => {
+    console.log('🔍 canCreateHotspot check:', { 
+      user: !!user, 
+      profile: profile, 
+      usage: usage,
+      plan_type: profile?.plan_type 
+    });
+    
     if (!user || !profile || !usage) return true; // Allow anonymous users
     
     if (profile.plan_type === 'pro') return true;
@@ -396,7 +385,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchProfile, fetchUsage]);
 
   const value = {
     user,

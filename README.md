@@ -28,6 +28,12 @@ A production-ready web application where users can upload images and add interac
 - 🖱️ **Intuitive Interactions**: Cursor pointers on all clickable elements
 - 🔄 **Real-time Updates**: Optimistic updates with error handling
 
+### Freemium & Payments
+- 💳 **Stripe Integration**: Secure $1.99/month Pro subscriptions
+- 🚫 **Usage Limits**: 10 hotspots for free users, unlimited for Pro
+- 👑 **Upgrade Flow**: Seamless Stripe Checkout integration
+- 📊 **Billing Management**: Customer portal for subscription management
+
 ## 🛠️ Tech Stack
 
 - **Frontend**: Next.js 15, React 18, TypeScript
@@ -132,6 +138,7 @@ npm run type-check   # TypeScript checking
 - [`SESSION-NOTES.md`](./SESSION-NOTES.md) - Complete development history & troubleshooting
 - [`SETUP.md`](./SETUP.md) - Detailed setup instructions
 - [`IMPLEMENTATION.md`](./IMPLEMENTATION.md) - Technical implementation details
+- [`STRIPE-SETUP.md`](./STRIPE-SETUP.md) - Stripe payment integration guide
 - [`database/schema.sql`](./database/schema.sql) - Database schema & policies
 
 ---

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
+    "@stripe/stripe-js": "^7.8.0",
     "@supabase/supabase-js": "^2.54.0",
     "browser-image-compression": "^2.0.2",
     "clsx": "^2.1.1",
@@ -18,6 +19,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-dropzone": "^14.3.8",
+    "stripe": "^18.4.0",
     "tailwind-merge": "^3.3.1",
     "zod": "^4.0.17"
   },
