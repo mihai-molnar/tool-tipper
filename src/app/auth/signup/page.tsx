@@ -264,7 +264,7 @@ export default function SignupPage() {
 
       {ToastComponent && (
         <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 z-50 sm:min-w-96">
-          {ToastComponent}
+          {ToastComponent()}
         </div>
       )}
     </div>

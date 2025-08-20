@@ -19,13 +19,24 @@ export async function POST(request: NextRequest) {
     const slug = generateSlug();
     const editToken = generateEditToken();
 
+    // Get user from session if authenticated
+    let userId = null;
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      const { data: { user }, error: authError } = await supabaseServer.auth.getUser(token);
+      if (!authError && user) {
+        userId = user.id;
+      }
+    }
+
     const { data, error } = await supabaseServer
       .from('page')
       .insert({
         slug,
         edit_token: editToken,
         title,
-        // Leave user_id as null for now - will be linked when auth schema is set up
+        user_id: userId, // Set user_id if authenticated, null for anonymous
         // image_path will be set when image is uploaded
       })
       .select()

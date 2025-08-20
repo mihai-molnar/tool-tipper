@@ -10,7 +10,7 @@ export interface ToastProps {
   duration?: number;
 }
 
-export default function Toast({ type, message, onClose, duration = 5000 }: ToastProps) {
+function ToastMessage({ type, message, onClose, duration = 5000 }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
@@ -43,20 +43,23 @@ export default function Toast({ type, message, onClose, duration = 5000 }: Toast
 export function useToast() {
   const [toast, setToast] = useState<Omit<ToastProps, 'onClose'> | null>(null);
 
-  const showToast = (type: 'success' | 'error', message: string, duration?: number) => {
-    setToast({ type, message, duration });
+  const showToast = (type: 'success' | 'error' | 'info', message: string, duration?: number) => {
+    setToast({ type: type === 'info' ? 'success' : type, message, duration });
   };
 
   const hideToast = () => {
     setToast(null);
   };
 
-  const ToastComponent = toast ? (
-    <Toast {...toast} onClose={hideToast} />
-  ) : null;
+  const ToastComponent = () => {
+    if (!toast) return null;
+    return <ToastMessage {...toast} onClose={hideToast} />;
+  };
 
   return {
     showToast,
     ToastComponent,
   };
 }
+
+export default ToastMessage;
